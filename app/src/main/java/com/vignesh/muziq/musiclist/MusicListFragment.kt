@@ -22,17 +22,46 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.vignesh.muziq.R
+import com.vignesh.muziq.domain.model.Song
 
 /**
  * A placeholder fragment containing a simple view.
  */
-class MusicListFragment : Fragment() {
+class MusicListFragment : Fragment(), MusicListContract.View {
+
+    private lateinit var presenter: MusicListContract.Presenter
+    private lateinit var rootView: View
+
+    override fun showToast(message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    override fun showSongList(songList: List<Song>) {
+
+    }
+
+    override fun showProgressBar() {
+        rootView.findViewById<View>(R.id.loading_indicator).visibility = View.VISIBLE
+    }
+
+    override fun hideProgressBar() {
+        rootView.findViewById<View>(R.id.loading_indicator).visibility = View.INVISIBLE
+    }
+
+    override fun setPresenter(presenter: MusicListContract.Presenter?) {
+        if (presenter != null) {
+            this.presenter = presenter as MusicListPresenter
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_music_list, container, false)
+        rootView = inflater.inflate(R.layout.fragment_music_list, container, false)
+        presenter.loadSongList()
+        return rootView
     }
 }

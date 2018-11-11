@@ -19,9 +19,13 @@ package com.vignesh.muziq.musiclist
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import com.vignesh.muziq.R
+import com.vignesh.muziq.common.UseCaseHandler
+import com.vignesh.muziq.common.util.ActivityUtils
+import com.vignesh.muziq.common.util.AppExecutors
+import com.vignesh.muziq.datasource.SongRepository
+import com.vignesh.muziq.datasource.remote.SongRemoteDataSource
+import com.vignesh.muziq.domain.usecase.GetSongList
 import kotlinx.android.synthetic.main.activity_music_list.*
 
 class MusicListActivity : AppCompatActivity() {
@@ -30,21 +34,17 @@ class MusicListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_list)
         setSupportActionBar(toolbar)
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_music_list, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+        var musicListFragment = supportFragmentManager.findFragmentById(R.id.fragment_music_list)
+        if (musicListFragment == null) {
+            musicListFragment = MusicListFragment()
         }
+        ActivityUtils.addFragmentToActivity(supportFragmentManager, musicListFragment, R.id.fragment_music_list)
+
+        var musicListPresenter = MusicListPresenter(
+                UseCaseHandler.getInstance(),
+                musicListFragment as MusicListContract.View,
+                GetSongList(SongRepository.getInstance(SongRemoteDataSource.getInstance(AppExecutors())))
+        )
     }
 }
