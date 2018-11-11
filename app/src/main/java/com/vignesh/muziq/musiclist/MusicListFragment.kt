@@ -19,12 +19,14 @@ package com.vignesh.muziq.musiclist
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.vignesh.muziq.R
 import com.vignesh.muziq.domain.model.Song
+import kotlinx.android.synthetic.main.fragment_music_list.*
 
 /**
  * A placeholder fragment containing a simple view.
@@ -39,7 +41,15 @@ class MusicListFragment : Fragment(), MusicListContract.View {
     }
 
     override fun showSongList(songList: List<Song>) {
-
+        val songListAdapter = SongListAdapter()
+        songListAdapter.setSongList(songList)
+        songListAdapter.onSongClickedListener = object : SongListAdapter.OnSongClickedListener {
+            override fun onSongClicked(position: Int) {
+                showToast(songList[position].name)
+            }
+        }
+        recycler_song_list.layoutManager = LinearLayoutManager(context)
+        recycler_song_list.adapter = songListAdapter
     }
 
     override fun showProgressBar() {
