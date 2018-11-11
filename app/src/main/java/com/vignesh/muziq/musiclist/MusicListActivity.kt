@@ -15,13 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.vignesh.muziq
+package com.vignesh.muziq.musiclist
 
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.vignesh.muziq.R
 
 import kotlinx.android.synthetic.main.activity_music_list.*
 

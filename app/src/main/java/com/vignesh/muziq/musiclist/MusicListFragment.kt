@@ -15,13 +15,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.vignesh.muziq
+package com.vignesh.muziq.musiclist
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.vignesh.muziq.R
 
 /**
  * A placeholder fragment containing a simple view.

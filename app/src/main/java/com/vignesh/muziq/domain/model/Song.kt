@@ -17,11 +17,42 @@
 
 package com.vignesh.muziq.domain.model
 
+import org.json.JSONArray
+import org.json.JSONObject
+
 data class Song(
     val id: Int?,
     val name: String,
-    val album: String,
     val artists: String,
     val songUrl: String,
-    val albumArtUrl: String
-)
+    val artWorkUrl: String
+) {
+    companion object {
+
+        private const val ID = "id"
+        private const val NAME = "name"
+        private const val ARTISTS = "artists"
+        private const val SONG_URL = "song_url"
+        private const val ART_WORK_URL = "art_work_url"
+
+        fun createSongListFromJson(jsonArray: JSONArray): List<Song> {
+            val list = ArrayList<Song>()
+
+            for (i in 0 until jsonArray.length()) {
+                list.add(createSongFromJson(jsonArray.getJSONObject(i)))
+            }
+
+            return list
+        }
+
+        private fun createSongFromJson(jsonObject: JSONObject): Song {
+            return Song(
+                jsonObject.getInt(ID),
+                jsonObject.getString(NAME),
+                jsonObject.getString(ARTISTS),
+                jsonObject.getString(SONG_URL),
+                jsonObject.getString(ART_WORK_URL)
+            )
+        }
+    }
+}
