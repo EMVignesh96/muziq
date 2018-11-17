@@ -29,7 +29,7 @@ import com.vignesh.muziq.domain.model.Song
 
 class SongListAdapter : RecyclerView.Adapter<SongListAdapter.ItemViewHolder>() {
 
-    private val songList: ArrayList<Song> = ArrayList()
+    val songList: ArrayList<Song> = ArrayList()
     var onSongClickedListener: OnSongClickedListener? = null
 
     fun setSongList(songList: List<Song>) {
