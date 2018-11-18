@@ -77,15 +77,6 @@ class MusicListFragment : Fragment(), MusicListContract.View {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            mediaUri = Uri.parse(savedInstanceState.getString(URI))
-            playbackPosition = savedInstanceState.getLong(PLAYBACK_POSITION)
-            currentWindow = savedInstanceState.getInt(CURRENT_WINDOW)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -101,13 +92,6 @@ class MusicListFragment : Fragment(), MusicListContract.View {
             }
         }
         return rootView
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString(URI, mediaUri.toString())
-        outState.putInt(CURRENT_WINDOW, currentWindow)
-        outState.putLong(PLAYBACK_POSITION, playbackPosition)
     }
 
     private fun initializePlayer(mediaUri: Uri?) {
@@ -172,11 +156,5 @@ class MusicListFragment : Fragment(), MusicListContract.View {
         if (Util.SDK_INT > 23) {
             releasePlayer()
         }
-    }
-
-    companion object {
-        val URI = "uri"
-        val PLAYBACK_POSITION = "playback_position"
-        val CURRENT_WINDOW = "current_window"
     }
 }

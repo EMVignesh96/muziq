@@ -17,6 +17,7 @@
 
 package com.vignesh.muziq.datasource.remote
 
+import android.os.Handler
 import com.vignesh.muziq.common.util.AppExecutors
 import com.vignesh.muziq.datasource.SongDataSource
 import com.vignesh.muziq.domain.model.Song
@@ -28,13 +29,15 @@ class SongRemoteDataSource private constructor(val executors: AppExecutors) : So
         val runnable = Runnable {
             val response = MOCK_NETWORK_RESPONSE
             val songList = Song.createSongListFromJson(JSONArray(response))
-
             executors.mainThread().execute {
-                if (songList.isNotEmpty()) {
-                    getSongListCallback.onSongsLoaded(songList)
-                } else {
-                    getSongListCallback.onDataNotAvailable()
-                }
+                val handler = Handler()
+                handler.postDelayed({
+                    if (songList.isNotEmpty()) {
+                        getSongListCallback.onSongsLoaded(songList)
+                    } else {
+                        getSongListCallback.onDataNotAvailable()
+                    }
+                }, 1000)
             }
         }
         executors.networkIO().execute(runnable)
