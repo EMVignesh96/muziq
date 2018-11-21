@@ -33,9 +33,9 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
-import com.google.android.exoplayer2.util.Util
 import com.vignesh.muziq.R
 import com.vignesh.muziq.domain.model.Song
+import kotlinx.android.synthetic.main.activity_music_list.*
 import kotlinx.android.synthetic.main.fragment_music_list.*
 
 /**
@@ -120,20 +120,6 @@ class MusicListFragment : Fragment(), MusicListContract.View {
         ).createMediaSource(uri)
     }
 
-    override fun onStart() {
-        super.onStart()
-        if (Util.SDK_INT > 23) {
-            initializePlayer(mediaUri)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (Util.SDK_INT <= 23) {
-            initializePlayer(mediaUri)
-        }
-    }
-
     private fun releasePlayer() {
         if (player != null) {
             playbackPosition = player!!.currentPosition
@@ -141,20 +127,6 @@ class MusicListFragment : Fragment(), MusicListContract.View {
             playWhenReady = player!!.playWhenReady
             player!!.release()
             player = null
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (Util.SDK_INT <= 23) {
-            releasePlayer()
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (Util.SDK_INT > 23) {
-            releasePlayer()
         }
     }
 }
