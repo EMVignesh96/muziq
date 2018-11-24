@@ -53,6 +53,210 @@ import kotlinx.android.synthetic.main.activity_music_list.*
 
 class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFragmentInteractionListener,
     ExoPlayer.EventListener {
+
+    private var player: SimpleExoPlayer? = null
+    private lateinit var playerView: SimpleExoPlayerView
+    private var stateBuilder: PlaybackStateCompat.Builder? = null
+    private var notificationManager: NotificationManager? = null
+    private var currentSong: Song? = null
+    private var currentSongIndex: Int = -1
+    private var songList: List<Song> = ArrayList()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_music_list)
+        setSupportActionBar(toolbar)
+
+        playerView = player_view
+
+        var musicListFragment = supportFragmentManager.findFragmentById(R.id.fragment_music_list)
+        if (musicListFragment == null) {
+            musicListFragment = MusicListFragment()
+        }
+        (musicListFragment as MusicListFragment).setOnMusicListFragmentInteractionListener(this)
+        ActivityUtils.addFragmentToActivity(supportFragmentManager, musicListFragment, R.id.fragment_music_list)
+
+        var musicListPresenter = MusicListPresenter(
+            UseCaseHandler.getInstance(),
+            musicListFragment as MusicListContract.View,
+            GetSongList(SongRepository.getInstance(SongRemoteDataSource.getInstance(AppExecutors())))
+        )
+        initializePlayer()
+        initializeMediaSession()
+    }
+
+    private fun initializePlayer() {
+        if (player == null) {
+            val trackSelector = DefaultTrackSelector()
+            val loadControl = DefaultLoadControl()
+            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl)
+            playerView.player = player
+            playerView.useArtwork = false
+            playerView.controllerShowTimeoutMs = 0
+            playerView.controllerHideOnTouch = false
+
+            player?.addListener(this)
+
+            if (currentSong != null) {
+                val mediaUri = Uri.parse(currentSong?.songUrl)
+                val userAgent = Util.getUserAgent(this, APP_NAME)
+                val mediaSource = ExtractorMediaSource(
+                    mediaUri,
+                    DefaultDataSourceFactory(this, userAgent),
+                    DefaultExtractorsFactory(),
+                    null,
+                    null
+                )
+                player?.prepare(mediaSource)
+                player?.playWhenReady = true
+            }
+
+        }
+    }
+
+    private fun initializeMediaSession() {
+
+        mediaSession = MediaSessionCompat(this, APP_NAME)
+
+        mediaSession?.setFlags(
+            MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+        )
+
+        mediaSession?.setMediaButtonReceiver(null)
+        stateBuilder = PlaybackStateCompat.Builder()
+            .setActions(
+                PlaybackStateCompat.ACTION_PLAY or
+                        PlaybackStateCompat.ACTION_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+            )
+        mediaSession?.setPlaybackState(stateBuilder?.build())
+
+        mediaSession?.setCallback(object : MediaSessionCompat.Callback() {
+            override fun onPlay() {
+                player?.playWhenReady = true
+            }
+
+            override fun onPause() {
+                player?.playWhenReady = false
+            }
+
+            override fun onSkipToPrevious() {
+                if (currentSongIndex > 0) {
+                    currentSong = songList[--currentSongIndex]
+                    releasePlayer()
+                    initializePlayer()
+                } else {
+                    Toast.makeText(baseContext, R.string.first_song_in_the_list, Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onSkipToNext() {
+                if (currentSongIndex < songList.size - 1) {
+                    currentSong = songList[++currentSongIndex]
+                    releasePlayer()
+                    initializePlayer()
+                } else {
+                    Toast.makeText(baseContext, R.string.last_song_in_the_list, Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+        mediaSession?.isActive = true
+
+    }
+
+    private fun showNotification(state: PlaybackStateCompat?) {
+        val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+
+        val icon: Int
+        val playPauseTitle: String
+        if (state?.state == PlaybackStateCompat.STATE_PLAYING) {
+            icon = R.drawable.exo_controls_pause
+            playPauseTitle = getString(R.string.pause)
+        } else {
+            icon = R.drawable.exo_controls_play
+            playPauseTitle = getString(R.string.play)
+        }
+
+
+        val playPauseAction = NotificationCompat.Action(
+            icon, playPauseTitle,
+            MediaButtonReceiver.buildMediaButtonPendingIntent(
+                this,
+                PlaybackStateCompat.ACTION_PLAY_PAUSE
+            )
+        )
+
+        val playPrevious = android.support.v4.app.NotificationCompat.Action(
+            R.drawable.exo_controls_previous, getString(R.string.previous),
+            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+        )
+
+        val playNext = android.support.v4.app.NotificationCompat.Action(
+            R.drawable.exo_controls_next, getString(R.string.next),
+            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
+        )
+
+        val contentIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MusicListActivity::class.java),
+            0
+        )
+
+        builder.setContentTitle(currentSong?.name)
+            .setContentText(currentSong?.artists)
+            .setSmallIcon(R.drawable.ic_music_note)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setChannelId(NOTIFICATION_CHANNEL_ID)
+            .setContentIntent(contentIntent)
+            .addAction(playPrevious)
+            .addAction(playPauseAction)
+            .addAction(playNext)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setStyle(
+                android.support.v4.media.app.NotificationCompat.MediaStyle()
+                    .setMediaSession(mediaSession?.sessionToken)
+                    .setShowActionsInCompactView(0, 1)
+            )
+
+
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationChannel =
+                NotificationChannel(
+                    NOTIFICATION_CHANNEL_ID,
+                    NOTIFICATION_CHANNEL_NAME,
+                    NotificationManager.IMPORTANCE_LOW
+                )
+            notificationManager?.createNotificationChannel(notificationChannel)
+        }
+
+        if (currentSong != null) {
+            notificationManager?.notify(1, builder.build())
+        } else {
+            Toast.makeText(baseContext, R.string.select_a_song_to_play, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun playSong(songList: List<Song>, index: Int) {
+        this.songList = songList
+        currentSong = songList[index]
+        currentSongIndex = index
+        releasePlayer()
+        initializePlayer()
+    }
+
+    private fun releasePlayer() {
+        notificationManager?.cancelAll()
+        player?.stop()
+        player?.release()
+        player = null
+    }
+
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
 
     }
@@ -105,213 +309,16 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
         showNotification(stateBuilder?.build())
     }
 
-    private fun showNotification(state: PlaybackStateCompat?) {
-        val builder = NotificationCompat.Builder(this, "Playback")
-
-        val icon: Int
-        val playPauseTitle: String
-        if (state?.state == PlaybackStateCompat.STATE_PLAYING) {
-            icon = R.drawable.exo_controls_pause
-            playPauseTitle = "Pause"
-        } else {
-            icon = R.drawable.exo_controls_play
-            playPauseTitle = "Play"
-        }
-
-
-        val playPauseAction = NotificationCompat.Action(
-            icon, playPauseTitle,
-            MediaButtonReceiver.buildMediaButtonPendingIntent(
-                this,
-                PlaybackStateCompat.ACTION_PLAY_PAUSE
-            )
-        )
-
-        val playPrevious = android.support.v4.app.NotificationCompat.Action(
-            R.drawable.exo_controls_previous, "Previous",
-            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
-        )
-
-        val playNext = android.support.v4.app.NotificationCompat.Action(
-            R.drawable.exo_controls_next, "Next",
-            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
-        )
-
-        val contentIntent = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MusicListActivity::class.java),
-            0
-        )
-
-        builder.setContentTitle(currentSong?.name)
-            .setContentText(currentSong?.artists)
-            .setSmallIcon(R.drawable.ic_music_note)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setChannelId("Playback")
-            .setContentIntent(contentIntent)
-            .addAction(playPrevious)
-            .addAction(playPauseAction)
-            .addAction(playNext)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setStyle(
-                android.support.v4.media.app.NotificationCompat.MediaStyle()
-                    .setMediaSession(mediaSession?.sessionToken)
-                    .setShowActionsInCompactView(0, 1)
-            )
-
-
-        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel =
-                NotificationChannel("Playback", "Song Playback", NotificationManager.IMPORTANCE_LOW)
-            notificationManager?.createNotificationChannel(notificationChannel)
-        }
-
-        if (currentSong != null) {
-            notificationManager?.notify(1, builder.build())
-        } else {
-            Toast.makeText(baseContext, "Select a song to play", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private var player: SimpleExoPlayer? = null
-    private lateinit var playerView: SimpleExoPlayerView
-    private var stateBuilder: PlaybackStateCompat.Builder? = null
-    private var notificationManager: NotificationManager? = null
-    private var currentSong: Song? = null
-    private var currentSongIndex: Int = -1
-    private var songList: List<Song> = ArrayList()
-
-
-    override fun playSong(songList: List<Song>, index: Int) {
-        this.songList = songList
-        currentSong = songList[index]
-        currentSongIndex = index
-        releasePlayer()
-        initializePlayer()
-    }
-
-    private fun releasePlayer() {
-        notificationManager?.cancelAll()
-        player?.stop()
-        player?.release()
-        player = null
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_music_list)
-        setSupportActionBar(toolbar)
-
-        playerView = findViewById(R.id.player_view)
-
-        var musicListFragment = supportFragmentManager.findFragmentById(R.id.fragment_music_list)
-        if (musicListFragment == null) {
-            musicListFragment = MusicListFragment()
-        }
-        (musicListFragment as MusicListFragment).setOnMusicListFragmentInteractionListener(this)
-        ActivityUtils.addFragmentToActivity(supportFragmentManager, musicListFragment, R.id.fragment_music_list)
-
-        var musicListPresenter = MusicListPresenter(
-            UseCaseHandler.getInstance(),
-            musicListFragment as MusicListContract.View,
-            GetSongList(SongRepository.getInstance(SongRemoteDataSource.getInstance(AppExecutors())))
-        )
-        initializePlayer()
-        initializeMediaSession()
-    }
-
-    private fun initializePlayer() {
-        if (player == null) {
-            val trackSelector = DefaultTrackSelector()
-            val loadControl = DefaultLoadControl()
-            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl)
-            playerView.player = player
-            playerView.useArtwork = false
-            playerView.controllerShowTimeoutMs = 0
-            playerView.controllerHideOnTouch = false
-
-            player?.addListener(this)
-
-            if (currentSong != null) {
-                val mediaUri = Uri.parse(currentSong?.songUrl)
-                val userAgent = Util.getUserAgent(this, "muziq")
-                val mediaSource = ExtractorMediaSource(
-                    mediaUri,
-                    DefaultDataSourceFactory(this, userAgent),
-                    DefaultExtractorsFactory(),
-                    null,
-                    null
-                )
-                player?.prepare(mediaSource)
-                player?.playWhenReady = true
-            }
-
-        }
-    }
-
     override fun onDestroy() {
         notificationManager?.cancel(1)
         super.onDestroy()
     }
 
-    private fun initializeMediaSession() {
-
-        mediaSession = MediaSessionCompat(this, "muziq")
-
-        mediaSession?.setFlags(
-            MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-        )
-
-        mediaSession?.setMediaButtonReceiver(null)
-        stateBuilder = PlaybackStateCompat.Builder()
-            .setActions(
-                PlaybackStateCompat.ACTION_PLAY or
-                        PlaybackStateCompat.ACTION_PAUSE or
-                        PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
-                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-            )
-        mediaSession?.setPlaybackState(stateBuilder?.build())
-
-        mediaSession?.setCallback(object : MediaSessionCompat.Callback() {
-            override fun onPlay() {
-                player?.playWhenReady = true
-            }
-
-            override fun onPause() {
-                player?.playWhenReady = false
-            }
-
-            override fun onSkipToPrevious() {
-                if (currentSongIndex > 0) {
-                    currentSong = songList[--currentSongIndex]
-                    releasePlayer()
-                    initializePlayer()
-                } else {
-                    Toast.makeText(baseContext, "First song in the list", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onSkipToNext() {
-                if (currentSongIndex < songList.size) {
-                    currentSong = songList[++currentSongIndex]
-                    releasePlayer()
-                    initializePlayer()
-                } else {
-                    Toast.makeText(baseContext, "Last song in the list", Toast.LENGTH_SHORT).show()
-                }
-            }
-        })
-        mediaSession?.isActive = true
-
-    }
-
     companion object {
         private var mediaSession: MediaSessionCompat? = null
+        const val APP_NAME = "MuziQ"
+        const val NOTIFICATION_CHANNEL_ID = "Playback"
+        const val NOTIFICATION_CHANNEL_NAME = "Song Playback"
 
         class MediaReceiver : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {

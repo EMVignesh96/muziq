@@ -18,4 +18,11 @@
 <resources>
     <string name="app_name">MuziQ</string>
     <string name="action_settings">Settings</string>
+    <string name="select_a_song_to_play">Select a song to play</string>
+    <string name="last_song_in_the_list">Last song in the list</string>
+    <string name="first_song_in_the_list">First song in the list</string>
+    <string name="pause">Pause</string>
+    <string name="play">Play</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
 </resources>
