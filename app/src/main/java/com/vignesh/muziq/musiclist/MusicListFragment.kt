@@ -17,7 +17,6 @@
 
 package com.vignesh.muziq.musiclist
 
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -25,33 +24,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.google.android.exoplayer2.DefaultLoadControl
-import com.google.android.exoplayer2.DefaultRenderersFactory
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.vignesh.muziq.R
 import com.vignesh.muziq.domain.model.Song
-import kotlinx.android.synthetic.main.activity_music_list.*
 import kotlinx.android.synthetic.main.fragment_music_list.*
 
-/**
- * A placeholder fragment containing a simple view.
- */
+
 class MusicListFragment : Fragment(), MusicListContract.View {
 
     private lateinit var presenter: MusicListContract.Presenter
     private lateinit var rootView: View
-    private var player: SimpleExoPlayer? = null
     private lateinit var songListAdapter: SongListAdapter
-    private var mediaUri: Uri? = null
 
-    private var playbackPosition: Long = 0
-    private var currentWindow = 0
-    private var playWhenReady = true
+    private var onMusicListFragmentInteractionListener: OnMusicListFragmentInteractionListener? = null
+
+    fun setOnMusicListFragmentInteractionListener(
+        onMusicListFragmentInteractionListener: OnMusicListFragmentInteractionListener
+    ) {
+        this.onMusicListFragmentInteractionListener = onMusicListFragmentInteractionListener
+    }
 
     override fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
@@ -86,47 +76,13 @@ class MusicListFragment : Fragment(), MusicListContract.View {
         presenter.loadSongList()
         songListAdapter.onSongClickedListener = object : SongListAdapter.OnSongClickedListener {
             override fun onSongClicked(position: Int) {
-                mediaUri = Uri.parse(songListAdapter.songList[position].songUrl)
-                releasePlayer()
-                initializePlayer(mediaUri)
+                onMusicListFragmentInteractionListener?.playSong(songListAdapter.songList[position])
             }
         }
         return rootView
     }
 
-    private fun initializePlayer(mediaUri: Uri?) {
-        if (player == null) {
-            player = ExoPlayerFactory.newSimpleInstance(
-                DefaultRenderersFactory(context),
-                DefaultTrackSelector(), DefaultLoadControl()
-            )
-        }
-
-        player_view.player = player
-        player!!.playWhenReady = playWhenReady
-        player!!.seekTo(currentWindow, playbackPosition)
-
-        val mediaSource = buildMediaSource(mediaUri)
-        player!!.prepare(mediaSource, true, false)
-
-        player_view.controllerShowTimeoutMs = 0
-        player_view.controllerHideOnTouch = false
-        player_view.useArtwork = false
-    }
-
-    private fun buildMediaSource(uri: Uri?): MediaSource {
-        return ExtractorMediaSource.Factory(
-            DefaultHttpDataSourceFactory("muziq")
-        ).createMediaSource(uri)
-    }
-
-    private fun releasePlayer() {
-        if (player != null) {
-            playbackPosition = player!!.currentPosition
-            currentWindow = player!!.currentWindowIndex
-            playWhenReady = player!!.playWhenReady
-            player!!.release()
-            player = null
-        }
+    interface OnMusicListFragmentInteractionListener {
+        fun playSong(song: Song)
     }
 }
