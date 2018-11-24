@@ -19,6 +19,7 @@ package com.vignesh.muziq.musiclist
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -131,11 +132,19 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
         )
 
+        val contentIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MusicListActivity::class.java),
+            0
+        )
+
         builder.setContentTitle(currentSong?.name)
             .setContentText(currentSong?.artists)
             .setSmallIcon(R.drawable.ic_music_note)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setChannelId("Playback")
+            .setContentIntent(contentIntent)
             .addAction(restartAction)
             .addAction(playPauseAction)
             .setOngoing(true)
