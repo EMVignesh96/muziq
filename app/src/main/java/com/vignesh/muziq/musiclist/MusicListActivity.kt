@@ -127,9 +127,14 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             )
         )
 
-        val restartAction = android.support.v4.app.NotificationCompat.Action(
-            R.drawable.exo_controls_previous, "Restart",
+        val playPrevious = android.support.v4.app.NotificationCompat.Action(
+            R.drawable.exo_controls_previous, "Previous",
             MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
+        )
+
+        val playNext = android.support.v4.app.NotificationCompat.Action(
+            R.drawable.exo_controls_next, "Next",
+            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_SKIP_TO_NEXT)
         )
 
         val contentIntent = PendingIntent.getActivity(
@@ -145,8 +150,9 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setChannelId("Playback")
             .setContentIntent(contentIntent)
-            .addAction(restartAction)
+            .addAction(playPrevious)
             .addAction(playPauseAction)
+            .addAction(playNext)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
@@ -176,10 +182,14 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
     private var stateBuilder: PlaybackStateCompat.Builder? = null
     private var notificationManager: NotificationManager? = null
     private var currentSong: Song? = null
+    private var currentSongIndex: Int = -1
+    private var songList: List<Song> = ArrayList()
 
 
-    override fun playSong(song: Song) {
-        currentSong = song
+    override fun playSong(songList: List<Song>, index: Int) {
+        this.songList = songList
+        currentSong = songList[index]
+        currentSongIndex = index
         releasePlayer()
         initializePlayer()
     }
@@ -228,7 +238,7 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
 
             if (currentSong != null) {
                 val mediaUri = Uri.parse(currentSong?.songUrl)
-                val userAgent = Util.getUserAgent(this, "ClassicalMusicQuiz")
+                val userAgent = Util.getUserAgent(this, "muziq")
                 val mediaSource = ExtractorMediaSource(
                     mediaUri,
                     DefaultDataSourceFactory(this, userAgent),
@@ -262,7 +272,8 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
                 PlaybackStateCompat.ACTION_PLAY or
                         PlaybackStateCompat.ACTION_PAUSE or
                         PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or
-                        PlaybackStateCompat.ACTION_PLAY_PAUSE
+                        PlaybackStateCompat.ACTION_PLAY_PAUSE or
+                        PlaybackStateCompat.ACTION_SKIP_TO_NEXT
             )
         mediaSession?.setPlaybackState(stateBuilder?.build())
 
@@ -276,7 +287,23 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             }
 
             override fun onSkipToPrevious() {
-                player?.seekTo(0)
+                if (currentSongIndex > 0) {
+                    currentSong = songList[--currentSongIndex]
+                    releasePlayer()
+                    initializePlayer()
+                } else {
+                    Toast.makeText(baseContext, "First song in the list", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onSkipToNext() {
+                if (currentSongIndex < songList.size) {
+                    currentSong = songList[++currentSongIndex]
+                    releasePlayer()
+                    initializePlayer()
+                } else {
+                    Toast.makeText(baseContext, "Last song in the list", Toast.LENGTH_SHORT).show()
+                }
             }
         })
         mediaSession?.isActive = true

@@ -76,13 +76,13 @@ class MusicListFragment : Fragment(), MusicListContract.View {
         presenter.loadSongList()
         songListAdapter.onSongClickedListener = object : SongListAdapter.OnSongClickedListener {
             override fun onSongClicked(position: Int) {
-                onMusicListFragmentInteractionListener?.playSong(songListAdapter.songList[position])
+                onMusicListFragmentInteractionListener?.playSong(songListAdapter.songList, position)
             }
         }
         return rootView
     }
 
     interface OnMusicListFragmentInteractionListener {
-        fun playSong(song: Song)
+        fun playSong(songList: List<Song>, index: Int)
     }
 }
