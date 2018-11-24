@@ -205,23 +205,25 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             0
         )
 
-        builder.setContentTitle(currentSong?.name)
-            .setContentText(currentSong?.artists)
-            .setSmallIcon(R.drawable.ic_music_note)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setChannelId(NOTIFICATION_CHANNEL_ID)
-            .setContentIntent(contentIntent)
-            .addAction(playPrevious)
-            .addAction(playPauseAction)
-            .addAction(playNext)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setStyle(
+        builder.apply {
+            setContentTitle(currentSong?.name)
+            setContentText(currentSong?.artists)
+            setSmallIcon(R.drawable.ic_music_note)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            setChannelId(NOTIFICATION_CHANNEL_ID)
+            setContentIntent(contentIntent)
+            addAction(playPrevious)
+            addAction(playPauseAction)
+            addAction(playNext)
+            setOngoing(true)
+            setOnlyAlertOnce(true)
+            setDefaults(NotificationCompat.DEFAULT_ALL)
+            setStyle(
                 android.support.v4.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession?.sessionToken)
-                    .setShowActionsInCompactView(0, 1)
+                    .setShowActionsInCompactView(0, 1, 2)
             )
+        }
 
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
