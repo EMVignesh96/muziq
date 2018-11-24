@@ -148,6 +148,8 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             .addAction(restartAction)
             .addAction(playPauseAction)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setStyle(
                 android.support.v4.media.app.NotificationCompat.MediaStyle()
                     .setMediaSession(mediaSession?.sessionToken)
@@ -158,7 +160,7 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel =
-                NotificationChannel("Playback", "Song Playback", NotificationManager.IMPORTANCE_HIGH)
+                NotificationChannel("Playback", "Song Playback", NotificationManager.IMPORTANCE_LOW)
             notificationManager?.createNotificationChannel(notificationChannel)
         }
 
@@ -239,6 +241,11 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             }
 
         }
+    }
+
+    override fun onDestroy() {
+        notificationManager?.cancel(1)
+        super.onDestroy()
     }
 
     private fun initializeMediaSession() {
