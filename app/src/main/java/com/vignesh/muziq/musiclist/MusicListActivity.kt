@@ -252,7 +252,6 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
     }
 
     private fun releasePlayer() {
-        notificationManager?.cancelAll()
         player?.stop()
         player?.release()
         player = null
@@ -312,7 +311,7 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
 
     override fun onDestroy() {
         releasePlayer()
-        notificationManager?.cancel(1)
+        notificationManager?.cancelAll()
         super.onDestroy()
     }
 
