@@ -122,7 +122,6 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
             MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
 
-        mediaSession?.setMediaButtonReceiver(null)
         stateBuilder = PlaybackStateCompat.Builder()
             .setActions(
                 PlaybackStateCompat.ACTION_PLAY or
@@ -312,6 +311,7 @@ class MusicListActivity : AppCompatActivity(), MusicListFragment.OnMusicListFrag
     }
 
     override fun onDestroy() {
+        releasePlayer()
         notificationManager?.cancel(1)
         super.onDestroy()
     }

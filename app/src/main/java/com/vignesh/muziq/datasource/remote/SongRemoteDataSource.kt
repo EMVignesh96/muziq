@@ -45,76 +45,76 @@ class SongRemoteDataSource private constructor(val executors: AppExecutors) : So
 
     companion object {
         const val MOCK_NETWORK_RESPONSE = "[\n" +
-                "    {\n" +
-                "        \"id\":1,\n" +
-                "        \"name\":\"Bubble\",\n" +
-                "        \"artists\":\"Raven & Kreyn\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Bubble.mp3?alt=media&token=13be94ed-c718-4b64-bf0b-862add82678d\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5ac8cd6e8efd1_400x400bb.jpg?alt=media&token=f493dc8b-1248-4dff-8034-b7610b00753d\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":2,\n" +
-                "        \"name\":\"Ignoring My Heart\",\n" +
-                "        \"artists\":\"T-Mass\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Ignoring_My_Heart.mp3?alt=media&token=f4865288-a296-4f2b-af62-b90ca251384d\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5b0530e5331e8_400x400bb.jpg?alt=media&token=eb5baa59-9822-446f-9759-06482ad313b2\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":3,\n" +
-                "        \"name\":\"Inspiration\",\n" +
-                "        \"artists\":\"Unknown Brains\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Inspiration.mp3?alt=media&token=993ed664-1449-49fa-bd6c-9f3a12a91864\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_59735ca5e1481_.jpg?alt=media&token=23562fc4-d504-4c46-a97e-5c18e989225a\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":4,\n" +
-                "        \"name\":\"Muffin\",\n" +
-                "        \"artists\":\"Raven & Kreyn\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Muffin.mp3?alt=media&token=2fc76a37-c865-436e-80ef-411407162cc1\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5be693dd3ea5e_400x400bb.jpg?alt=media&token=6cd91cf6-c703-4265-8108-f0a1c159adff\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":5,\n" +
-                "        \"name\":\"Power\",\n" +
-                "        \"artists\":\"ELPORT x VYMVN\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Power.mp3?alt=media&token=459114a6-8459-4767-97e4-d14b88f99f08\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5be07a1d8bc27_400x400bb.jpg?alt=media&token=31b7638c-ce16-458e-9fda-54d60751d2b9\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":6,\n" +
-                "        \"name\":\"Steeper\",\n" +
-                "        \"artists\":\"Ash O'Connor & Curbi\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Steeper.mp3?alt=media&token=ff7120c2-12a3-41a4-ad1f-2adc62a2c32d\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5ace2898069ec_400x400bb.jpg?alt=media&token=ebe5530f-953a-410d-9fea-061866c9bc06\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":7,\n" +
-                "        \"name\":\"Stronger\",\n" +
-                "        \"artists\":\"Prismo\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Stronger.mp3?alt=media&token=98bc21a1-4962-4d22-9e31-8bb6b7dff383\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5a3260b4a5490_400x400bb.jpg?alt=media&token=bc6c6ea1-b05a-42ea-93b8-4ae308676012\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":8,\n" +
-                "        \"name\":\"Want You\",\n" +
-                "        \"artists\":\"Subtact\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/Want_You.mp3?alt=media&token=b37be6f6-90b8-44ca-8ef8-f32fb1d853b6\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5bd9d7771d281_400x400bb.jpg?alt=media&token=2d8aa710-68dc-489a-8361-4f4600e08dd9\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":9,\n" +
-                "        \"name\":\"We Are\",\n" +
-                "        \"artists\":\"Jo Cohen\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/We_Are.mp3?alt=media&token=28922369-32c2-4182-8cb7-2cf4d273300d\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5b2d1add0df1f_400x400bb.jpg?alt=media&token=f40fc7c6-2470-4c86-ad3f-17628ac3264f\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"id\":10,\n" +
-                "        \"name\":\"With Me\",\n" +
-                "        \"artists\":\"Andromedik\",\n" +
-                "        \"song_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/With_me.mp3?alt=media&token=ad799d74-1a31-4da2-9731-515b3b6cef7a\",\n" +
-                "        \"art_work_url\":\"https:\\/\\/firebasestorage.googleapis.com\\/v0\\/b\\/muziq-95d98.appspot.com\\/o\\/artwork_5be3185d850b4_400x400bb.jpg?alt=media&token=d74a1749-30be-4795-96e6-c2c29b79e629\"\n" +
-                "    }\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5ac8cd6e8efd1_400x400bb.jpg?alt=media&token=6ca9b002-4cde-45c4-94bb-13bc5b6e2b5d\",\n" +
+                "      \"artists\":\"Raven & Kreyn\",\n" +
+                "      \"name\":\"Bubble\",\n" +
+                "      \"id\":1,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Bubble.mp3?alt=media&token=04a042c8-d422-4f41-85e5-3d53e1c6febb\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5b0530e5331e8_400x400bb.jpg?alt=media&token=02ade5e6-162a-44e5-b3e8-6dee42a00a02\",\n" +
+                "      \"artists\":\"T-Mass\",\n" +
+                "      \"name\":\"Ignoring My Heart\",\n" +
+                "      \"id\":2,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Ignoring_My_Heart.mp3?alt=media&token=8b8bd349-3643-442a-8266-734ad5b9c2b8\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_59735ca5e1481_.jpg?alt=media&token=a44b8332-257e-42f4-9787-8ddd76a34b21\",\n" +
+                "      \"artists\":\"Unknown Brains\",\n" +
+                "      \"name\":\"Inspiration\",\n" +
+                "      \"id\":3,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Inspiration.mp3?alt=media&token=2c423b43-6bdd-4e66-87bf-0a5c50ba7184\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5be693dd3ea5e_400x400bb.jpg?alt=media&token=2d617d6b-eb70-42ec-aa77-2f103a945a15\",\n" +
+                "      \"artists\":\"Raven & Kreyn\",\n" +
+                "      \"name\":\"Muffin\",\n" +
+                "      \"id\":4,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Muffin.mp3?alt=media&token=352b71e3-37e0-487a-acd1-8fd67f6afcba\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5be07a1d8bc27_400x400bb.jpg?alt=media&token=3134c18a-f142-4e77-9b25-3cd02e8938f2\",\n" +
+                "      \"artists\":\"ELPORT x VYMVN\",\n" +
+                "      \"name\":\"Power\",\n" +
+                "      \"id\":5,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Power.mp3?alt=media&token=4e118731-605b-43b0-8556-84d46551ce8e\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5ace2898069ec_400x400bb.jpg?alt=media&token=7c55bcb0-24c9-4edc-904a-b837610f983d\",\n" +
+                "      \"artists\":\"Ash O'Connor & Curbi\",\n" +
+                "      \"name\":\"Steeper\",\n" +
+                "      \"id\":6,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Steeper.mp3?alt=media&token=22527a6f-99f6-4f10-a4ea-e0d1effe1edd\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5a3260b4a5490_400x400bb.jpg?alt=media&token=f493f37e-74ea-4ad2-9200-8fb46921c832\",\n" +
+                "      \"artists\":\"Prismo\",\n" +
+                "      \"name\":\"Stronger\",\n" +
+                "      \"id\":7,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Stronger.mp3?alt=media&token=7b58fcd9-5fe9-40cb-9a3e-d04f3df6c041\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5b2d1add0df1f_400x400bb.jpg?alt=media&token=43431151-a7e2-4387-8185-b7dae1afd7a0\",\n" +
+                "      \"artists\":\"Jo Cohen\",\n" +
+                "      \"name\":\"We Are\",\n" +
+                "      \"id\":8,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/We_Are.mp3?alt=media&token=e990f4ae-8d83-49df-a81e-38a4e73f7191\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5bd9d7771d281_400x400bb.jpg?alt=media&token=c6743751-aec6-481e-9456-dab681167ab0\",\n" +
+                "      \"artists\":\"Subtact\",\n" +
+                "      \"name\":\"Want You\",\n" +
+                "      \"id\":9,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/Want_You.mp3?alt=media&token=929f4e25-d7cc-43cf-87f2-a71e553438da\"\n" +
+                "   },\n" +
+                "   {\n" +
+                "      \"art_work_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/artwork_5be3185d850b4_400x400bb.jpg?alt=media&token=4ad236be-d5a6-4dac-b2b0-238d2087be90\",\n" +
+                "      \"artists\":\"Andromedik\",\n" +
+                "      \"name\":\"With Me\",\n" +
+                "      \"id\":10,\n" +
+                "      \"song_url\":\"https://firebasestorage.googleapis.com/v0/b/muziq-ce2f2.appspot.com/o/With_me.mp3?alt=media&token=6b727e21-b130-4b12-b8c2-31283befff16\"\n" +
+                "   }\n" +
                 "]"
         var ourInstance: SongRemoteDataSource? = null
 
